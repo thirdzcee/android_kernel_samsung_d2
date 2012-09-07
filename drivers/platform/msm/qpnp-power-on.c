@@ -22,41 +22,55 @@
 #include <linux/interrupt.h>
 #include <linux/input.h>
 #include <linux/log2.h>
+#include <linux/qpnp/power-on.h>
 
 /* PON common register addresses */
-#define QPNP_PON_RT_STS(base)		(base + 0x10)
-#define QPNP_PON_PULL_CTL(base)		(base + 0x70)
-#define QPNP_PON_DBC_CTL(base)		(base + 0x71)
+#define QPNP_PON_RT_STS(base)			(base + 0x10)
+#define QPNP_PON_PULL_CTL(base)			(base + 0x70)
+#define QPNP_PON_DBC_CTL(base)			(base + 0x71)
 
 /* PON/RESET sources register addresses */
-#define QPNP_PON_KPDPWR_S1_TIMER(base)	(base + 0x40)
-#define QPNP_PON_KPDPWR_S2_TIMER(base)	(base + 0x41)
-#define QPNP_PON_KPDPWR_S2_CNTL(base)	(base + 0x42)
-#define QPNP_PON_RESIN_S1_TIMER(base)	(base + 0x44)
-#define QPNP_PON_RESIN_S2_TIMER(base)	(base + 0x45)
-#define QPNP_PON_RESIN_S2_CNTL(base)	(base + 0x46)
+#define QPNP_PON_WARM_RESET_REASON1(base)	(base + 0xA)
+#define QPNP_PON_WARM_RESET_REASON2(base)	(base + 0xB)
+#define QPNP_PON_KPDPWR_S1_TIMER(base)		(base + 0x40)
+#define QPNP_PON_KPDPWR_S2_TIMER(base)		(base + 0x41)
+#define QPNP_PON_KPDPWR_S2_CNTL(base)		(base + 0x42)
+#define QPNP_PON_RESIN_S1_TIMER(base)		(base + 0x44)
+#define QPNP_PON_RESIN_S2_TIMER(base)		(base + 0x45)
+#define QPNP_PON_RESIN_S2_CNTL(base)		(base + 0x46)
+#define QPNP_PON_PS_HOLD_RST_CTL(base)		(base + 0x5A)
+#define QPNP_PON_PS_HOLD_RST_CTL2(base)		(base + 0x5B)
+#define QPNP_PON_TRIGGER_EN(base)		(base + 0x80)
 
-#define QPNP_PON_RESIN_PULL_UP		BIT(0)
-#define QPNP_PON_KPDPWR_PULL_UP		BIT(1)
-#define QPNP_PON_S2_CNTL_EN		BIT(7)
-#define QPNP_PON_S2_RESET_ENABLE	BIT(7)
+#define QPNP_PON_WARM_RESET_TFT			BIT(4)
 
-#define QPNP_PON_S1_TIMER_MASK		(0xF)
-#define QPNP_PON_S2_TIMER_MASK		(0x7)
-#define QPNP_PON_S2_CNTL_TYPE_MASK	(0xF)
+#define QPNP_PON_RESIN_PULL_UP			BIT(0)
+#define QPNP_PON_KPDPWR_PULL_UP			BIT(1)
+#define QPNP_PON_CBLPWR_PULL_UP			BIT(2)
+#define QPNP_PON_S2_CNTL_EN			BIT(7)
+#define QPNP_PON_S2_RESET_ENABLE		BIT(7)
+#define QPNP_PON_DELAY_BIT_SHIFT		6
 
-#define QPNP_PON_DBC_DELAY_MASK		(0x7)
-#define QPNP_PON_KPDPWR_N_SET		BIT(0)
-#define QPNP_PON_RESIN_N_SET		BIT(1)
-#define QPNP_PON_RESIN_BARK_N_SET	BIT(4)
+#define QPNP_PON_S1_TIMER_MASK			(0xF)
+#define QPNP_PON_S2_TIMER_MASK			(0x7)
+#define QPNP_PON_S2_CNTL_TYPE_MASK		(0xF)
+
+#define QPNP_PON_DBC_DELAY_MASK			(0x7)
+#define QPNP_PON_KPDPWR_N_SET			BIT(0)
+#define QPNP_PON_RESIN_N_SET			BIT(1)
+#define QPNP_PON_CBLPWR_N_SET			BIT(2)
+#define QPNP_PON_RESIN_BARK_N_SET		BIT(4)
+
+#define QPNP_PON_RESET_EN			BIT(7)
+#define QPNP_PON_POWER_OFF_MASK			0xF
 
 /* Ranges */
-#define QPNP_PON_S1_TIMER_MAX		10256
-#define QPNP_PON_S2_TIMER_MAX		2000
-#define QPNP_PON_RESET_TYPE_MAX		0xF
-#define PON_S1_COUNT_MAX		0xF
+#define QPNP_PON_S1_TIMER_MAX			10256
+#define QPNP_PON_S2_TIMER_MAX			2000
+#define QPNP_PON_RESET_TYPE_MAX			0xF
+#define PON_S1_COUNT_MAX			0xF
 
-#define QPNP_KEY_STATUS_DELAY		msecs_to_jiffies(500)
+#define QPNP_KEY_STATUS_DELAY			msecs_to_jiffies(250)
 
 enum pon_type {
 	PON_KPDPWR,
@@ -83,6 +97,8 @@ struct qpnp_pon {
 	u16 base;
 	struct delayed_work bark_work;
 };
+
+static struct qpnp_pon *sys_reset_dev;
 
 static u32 s1_delay[PON_S1_COUNT_MAX + 1] = {
 	0 , 32, 56, 80, 138, 184, 272, 408, 608, 904, 1352, 2048,
@@ -112,6 +128,135 @@ qpnp_pon_masked_write(struct qpnp_pon *pon, u16 addr, u8 mask, u8 val)
 			"Unable to write to addr=%x, rc(%d)\n", addr, rc);
 	return rc;
 }
+
+/**
+ * qpnp_pon_system_pwr_off - Configure system-reset PMIC for shutdown or reset
+ * @type: Determines the type of power off to perform - shutdown, reset, etc
+ *
+ * This function will only configure a single PMIC. The other PMICs in the
+ * system are slaved off of it and require no explicit configuration. Once
+ * the system-reset PMIC is configured properly, the MSM can drop PS_HOLD to
+ * activate the specified configuration.
+ */
+int qpnp_pon_system_pwr_off(enum pon_power_off_type type)
+{
+	int rc;
+	struct qpnp_pon *pon = sys_reset_dev;
+
+	if (!pon)
+		return -ENODEV;
+
+	rc = qpnp_pon_masked_write(pon, QPNP_PON_PS_HOLD_RST_CTL(pon->base),
+							QPNP_PON_RESET_EN, 0);
+	if (rc)
+		dev_err(&pon->spmi->dev,
+			"Unable to write to addr=%x, rc(%d)\n",
+				QPNP_PON_PS_HOLD_RST_CTL(pon->base), rc);
+
+	/*
+	 * We need 10 sleep clock cycles here. But since the clock is
+	 * internally generated, we need to add 50% tolerance to be
+	 * conservative.
+	 */
+	udelay(500);
+
+	rc = qpnp_pon_masked_write(pon, QPNP_PON_PS_HOLD_RST_CTL(pon->base),
+				   QPNP_PON_POWER_OFF_MASK, type);
+	if (rc)
+		dev_err(&pon->spmi->dev,
+			"Unable to write to addr=%x, rc(%d)\n",
+				QPNP_PON_PS_HOLD_RST_CTL(pon->base), rc);
+
+	rc = qpnp_pon_masked_write(pon, QPNP_PON_PS_HOLD_RST_CTL(pon->base),
+							QPNP_PON_RESET_EN,
+							QPNP_PON_RESET_EN);
+	if (rc)
+		dev_err(&pon->spmi->dev,
+			"Unable to write to addr=%x, rc(%d)\n",
+				QPNP_PON_PS_HOLD_RST_CTL(pon->base), rc);
+
+	dev_dbg(&pon->spmi->dev, "power off type = 0x%02X\n", type);
+
+	return rc;
+}
+EXPORT_SYMBOL(qpnp_pon_system_pwr_off);
+
+/**
+ * qpnp_pon_is_warm_reset - Checks if the PMIC went through a warm reset.
+ *
+ * Returns > 0 for warm resets, 0 for not warm reset, < 0 for errors
+ *
+ * Note that this function will only return the warm vs not-warm reset status
+ * of the PMIC that is configured as the system-reset device.
+ */
+int qpnp_pon_is_warm_reset(void)
+{
+	struct qpnp_pon *pon = sys_reset_dev;
+	int rc;
+	u8 reg;
+
+	if (!pon)
+		return -EPROBE_DEFER;
+
+	rc = spmi_ext_register_readl(pon->spmi->ctrl, pon->spmi->sid,
+			QPNP_PON_WARM_RESET_REASON1(pon->base), &reg, 1);
+	if (rc) {
+		dev_err(&pon->spmi->dev,
+			"Unable to read addr=%x, rc(%d)\n",
+			QPNP_PON_WARM_RESET_REASON1(pon->base), rc);
+		return rc;
+	}
+
+	if (reg)
+		return 1;
+
+	rc = spmi_ext_register_readl(pon->spmi->ctrl, pon->spmi->sid,
+			QPNP_PON_WARM_RESET_REASON2(pon->base), &reg, 1);
+	if (rc) {
+		dev_err(&pon->spmi->dev,
+			"Unable to read addr=%x, rc(%d)\n",
+			QPNP_PON_WARM_RESET_REASON2(pon->base), rc);
+		return rc;
+	}
+	if (reg & QPNP_PON_WARM_RESET_TFT)
+		return 1;
+
+	return 0;
+}
+EXPORT_SYMBOL(qpnp_pon_is_warm_reset);
+
+/**
+ * qpnp_pon_trigger_config - Configures (enable/disable) the PON trigger source
+ * @pon_src: PON source to be configured
+ * @enable: to enable or disable the PON trigger
+ *
+ * This function configures the power-on trigger capability of a
+ * PON source. If a specific PON trigger is disabled it cannot act
+ * as a power-on source to the PMIC.
+ */
+
+int qpnp_pon_trigger_config(enum pon_trigger_source pon_src, bool enable)
+{
+	struct qpnp_pon *pon = sys_reset_dev;
+	int rc;
+
+	if (!pon)
+		return -EPROBE_DEFER;
+
+	if (pon_src < PON_SMPL || pon_src > PON_KPDPWR_N) {
+		dev_err(&pon->spmi->dev, "Invalid PON source\n");
+		return -EINVAL;
+	}
+
+	rc = qpnp_pon_masked_write(pon, QPNP_PON_TRIGGER_EN(pon->base),
+				BIT(pon_src), enable ? BIT(pon_src) : 0);
+	if (rc)
+		dev_err(&pon->spmi->dev, "Unable to write to addr=%x, rc(%d)\n",
+					QPNP_PON_TRIGGER_EN(pon->base), rc);
+
+	return rc;
+}
+EXPORT_SYMBOL(qpnp_pon_trigger_config);
 
 static struct qpnp_pon_config *
 qpnp_get_cfg(struct qpnp_pon *pon, u32 pon_type)
@@ -654,13 +799,22 @@ static int __devinit qpnp_pon_probe(struct spmi_device *spmi)
 	struct resource *pon_resource;
 	struct device_node *itr = NULL;
 	u32 delay = 0;
-	int rc = 0;
+	int rc, sys_reset;
 
 	pon = devm_kzalloc(&spmi->dev, sizeof(struct qpnp_pon),
 							GFP_KERNEL);
 	if (!pon) {
 		dev_err(&spmi->dev, "Can't allocate qpnp_pon\n");
 		return -ENOMEM;
+	}
+
+	sys_reset = of_property_read_bool(spmi->dev.of_node,
+						"qcom,system-reset");
+	if (sys_reset && sys_reset_dev) {
+		dev_err(&spmi->dev, "qcom,system-reset property can only be specified for one device on the system\n");
+		return -EINVAL;
+	} else if (sys_reset) {
+		sys_reset_dev = pon;
 	}
 
 	pon->spmi = spmi;
