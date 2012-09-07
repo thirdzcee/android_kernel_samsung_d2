@@ -24,6 +24,7 @@
 #include <linux/mfd/pmic8058.h>
 #include <linux/mfd/pmic8901.h>
 #include <linux/mfd/pm8xxx/misc.h>
+#include <linux/qpnp/power-on.h>
 
 #include <asm/mach-types.h>
 
@@ -75,6 +76,7 @@ static void __iomem *msm_tmr0_base;
 #ifdef CONFIG_MSM_DLOAD_MODE
 static int in_panic;
 static void *dload_mode_addr;
+static bool dload_mode_enabled;
 
 /* Download mode master kill-switch */
 static int dload_set(const char *val, struct kernel_param *kp);
@@ -104,19 +106,14 @@ static void set_dload_mode(int on)
 				lge_error_handler_cookie_addr);
 #endif
 		mb();
-#ifdef CONFIG_SEC_DEBUG
-		pr_err("set_dload_mode <%d> ( %lx )\n", on, CALLER_ADDR0);
-#endif
+		dload_mode_enabled = on;
 	}
 }
 
-#ifdef CONFIG_SEC_DEBUG
-void sec_debug_set_qc_dload_magic(int on)
+static bool get_dload_mode(void)
 {
-	pr_info("%s: on=%d\n", __func__, on);
-	set_dload_mode(on);
+	return dload_mode_enabled;
 }
-#endif
 
 static int dload_set(const char *val, struct kernel_param *kp)
 {
@@ -143,6 +140,11 @@ static int dload_set(const char *val, struct kernel_param *kp)
 }
 #else
 #define set_dload_mode(x) do {} while (0)
+
+static bool get_dload_mode(void)
+{
+	return false;
+}
 #endif
 
 void msm_set_restart_mode(int mode)
@@ -162,6 +164,7 @@ static void __msm_power_off(int lower_pshold)
 	set_dload_mode(0);
 #endif
 	pm8xxx_reset_pwr_off(0);
+	qpnp_pon_system_pwr_off(PON_POWER_OFF_SHUTDOWN);
 
 	if (lower_pshold) {
 		__raw_writel(0, PSHOLD_CTL_SU);
@@ -312,6 +315,12 @@ void msm_restart(char mode, const char *cmd)
 	printk(KERN_NOTICE "Going down for restart now\n");
 
 	pm8xxx_reset_pwr_off(1);
+
+	/* Hard reset the PMIC unless memory contents must be maintained. */
+	if (get_dload_mode() || (cmd != NULL && cmd[0] != '\0'))
+		qpnp_pon_system_pwr_off(PON_POWER_OFF_WARM_RESET);
+	else
+		qpnp_pon_system_pwr_off(PON_POWER_OFF_HARD_RESET);
 
 	if (cmd != NULL) {
 		if (!strncmp(cmd, "bootloader", 10)) {
