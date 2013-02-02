@@ -270,6 +270,7 @@ obj-$(CONFIG_ARCH_MSM8960) += acpuclock-8960.o acpuclock-8960ab.o
 obj-$(CONFIG_ARCH_MSM8960) += memory_topology.o
 obj-$(CONFIG_ARCH_MSM8960) += saw-regulator.o
 obj-$(CONFIG_ARCH_MSM8960) += devices-8960.o
+obj-$(CONFIG_ARCH_MSM8960) += fastchg.o
 obj-$(CONFIG_ARCH_APQ8064) += devices-8960.o devices-8064.o
 obj-$(CONFIG_INPUT_TOUCHSCREEN) += board-mxt540s-tsp.o 
 obj-$(CONFIG_ARCH_APQ8064) += acpuclock-8064.o
