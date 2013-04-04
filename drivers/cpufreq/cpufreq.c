@@ -52,6 +52,11 @@ static DEFINE_SPINLOCK(cpufreq_driver_lock);
 static struct kset *cpufreq_kset;
 static struct kset *cpudev_kset;
 
+//Global plaeholder for CPU policies
+static struct cpufreq_policy trmlpolicy[10];
+//Kthermal limit holder to stop govs from setting CPU speed higher than the thermal limit
+static unsigned int kthermal_limit;
+ 
 /*
  * cpu_policy_rwsem is a per CPU reader-writer semaphore designed to cure
  * all cpufreq/hotplug/workqueue/etc related lock issues.
@@ -1559,6 +1564,9 @@ int __cpufreq_driver_target(struct cpufreq_policy *policy,
 	if (cpufreq_disabled())
 		return -ENODEV;
 
+	if (kthermal_limit > 0 && target_freq > kthermal_limit)
+		target_freq = kthermal_limit;
+ 
 	pr_debug("target for CPU %u: %u kHz, relation %u\n", policy->cpu,
 		target_freq, relation);
 	if (cpu_online(policy->cpu) && cpufreq_driver->target)
@@ -1745,7 +1753,13 @@ int cpufreq_get_policy(struct cpufreq_policy *policy, unsigned int cpu)
 }
 EXPORT_SYMBOL(cpufreq_get_policy);
 
-
+void do_kthermal(unsigned int cpu, unsigned int freq)
+{
+	kthermal_limit = freq;
+	if (freq > 0)
+		__cpufreq_driver_target(&trmlpolicy[cpu], freq, CPUFREQ_RELATION_H);
+}
+ 
 /*
  * data   : current policy.
  * policy : policy to be set.
@@ -1761,6 +1775,9 @@ static int __cpufreq_set_policy(struct cpufreq_policy *data,
 	memcpy(&policy->cpuinfo, &data->cpuinfo,
 				sizeof(struct cpufreq_cpuinfo));
 
+	//trmlpolicy[policy->cpu] = policy;
+	memcpy(&trmlpolicy[policy->cpu], policy, sizeof(struct cpufreq_policy));
+ 
 	if (policy->min > data->user_policy.max
 		|| policy->max < data->user_policy.min) {
 		ret = -EINVAL;
