@@ -339,6 +339,9 @@ SYSCALL_DEFINE1(fsync, unsigned int, fd)
 		return 0;
 	else
 #endif
+	if (!fsync_enabled)
+		return 0;
+	
 	return do_fsync(fd, 0);
 }
 
