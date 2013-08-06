@@ -409,3 +409,4 @@ obj-$(CONFIG_SEC_DEBUG) += sec_debug.o sec_getlog.o sec_gaf.o
 
 obj-$(CONFIG_ARCH_RANDOM) += early_random.o
 obj-$(CONFIG_MSM_CPUFREQ_LIMITER) += cpufreq_limit.o
+obj-$(CONFIG_TURBO_BOOST) += msm_turbo.o
