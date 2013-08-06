@@ -69,6 +69,9 @@ static int __init cpufreq_read_arg_maxscroff(char *max_so)
 
 __setup("max_so=", cpufreq_read_arg_maxscroff);
 /**end maxscroff**/
+#ifdef CONFIG_TURBO_BOOST
+extern int msm_turbo(int);
+#endif
 
 static int set_cpu_freq(struct cpufreq_policy *policy, unsigned int new_freq)
 {
@@ -90,6 +93,10 @@ static int set_cpu_freq(struct cpufreq_policy *policy, unsigned int new_freq)
 			pr_debug("min: limiting freq to %d\n", new_freq);
 		}
 	}
+
+#ifdef CONFIG_TURBO_BOOST
+	new_freq = msm_turbo(new_freq);
+#endif
 
 	freqs.old = policy->cur;
 	freqs.new = new_freq;
