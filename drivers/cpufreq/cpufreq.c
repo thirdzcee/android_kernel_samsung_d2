@@ -1651,8 +1651,8 @@ int __cpufreq_driver_target(struct cpufreq_policy *policy,
 
 	pr_debug("target for CPU %u: %u kHz, relation %u\n", policy->cpu,
 		target_freq, relation);
-		
-		if (target_freq == policy->cur)
+
+	if (target_freq == policy->cur)
 		return 0;
 
 	if (cpu_online(policy->cpu) && cpufreq_driver->target)
@@ -1838,7 +1838,6 @@ int cpufreq_get_policy(struct cpufreq_policy *policy, unsigned int cpu)
 	return 0;
 }
 EXPORT_SYMBOL(cpufreq_get_policy);
-
 
 /*
  * data   : current policy.
