@@ -674,6 +674,13 @@ config CSDIO_DEVICE_ID
 	help
 	  Enter device id for targeted sdio device, this may be overwritten by
 	  module parameters.
+
+config FRANDOM
+        tristate "Support for /dev/frandom and /dev/erandom"
+        default m
+        help
+          If you do say Y here, the fast random number generator will
+          be supported.
 .
 endmenu
 
