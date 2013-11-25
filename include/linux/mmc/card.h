@@ -337,6 +337,10 @@ struct mmc_card {
 #define MMC_QUIRK_LONG_READ_TIME (1<<9)		/* Data read time > CSD says */
 						/* byte mode */
 #define MMC_QUIRK_INAND_DATA_TIMEOUT  (1<<8)    /* For incorrect data timeout */
+/* To avoid eMMC device getting broken permanently due to HPI feature */
+#define MMC_QUIRK_BROKEN_HPI (1 << 11)
+/* Skip data-timeout advertised by card */
+#define MMC_QUIRK_BROKEN_DATA_TIMEOUT (1<<12)
 
 	unsigned int		erase_size;	/* erase size in sectors */
  	unsigned int		erase_shift;	/* if erase unit is power 2 */
@@ -422,6 +426,7 @@ struct mmc_fixup {
 #define CID_MANFID_ANY (-1u)
 #define CID_OEMID_ANY ((unsigned short) -1)
 #define CID_NAME_ANY (NULL)
+#define CID_MANFID_HYNIX	0x90
 
 #define END_FIXUP { 0 }
 
