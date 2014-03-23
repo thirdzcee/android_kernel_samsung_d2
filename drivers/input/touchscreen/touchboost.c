@@ -197,8 +197,6 @@ static struct input_handler boost_input_handler = {
 
 static int init(void)
 {
-	cpufreq_register_notifier(&boost_adjust_nb, CPUFREQ_POLICY_NOTIFIER);
-
 	input_boost_wq = alloc_workqueue("input_boost_wq", WQ_FREEZABLE | WQ_HIGHPRI, 1);
 
 	if (!input_boost_wq)
@@ -208,6 +206,9 @@ static int init(void)
 	INIT_DELAYED_WORK(&rem_input_boost, do_rem_input_boost);
 
 	input_register_handler(&boost_input_handler);
+
+	cpufreq_register_notifier(&boost_adjust_nb, CPUFREQ_POLICY_NOTIFIER);
+
 	return 0;
 }
 late_initcall(init);
