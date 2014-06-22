@@ -55,9 +55,6 @@ static struct workqueue_struct *intelliplug_boost_wq;
 static unsigned int intelli_plug_active = 0;
 module_param(intelli_plug_active, uint, 0644);
 
-static unsigned int eco_mode_active = 1;
-module_param(eco_mode_active, uint, 0644);
-
 static unsigned int touch_boost_active = 1;
 module_param(touch_boost_active, uint, 0644);
 
@@ -170,21 +167,22 @@ static unsigned int calculate_thread_stats(void)
 	unsigned int threshold_size;
 	unsigned int *current_profile;
 
-	if (!eco_mode_active ||
-		!(nr_run_profile_sel == NR_RUN_ECO_MODE_PROFILE)) {
-		current_profile = nr_run_profiles[nr_run_profile_sel];
-		threshold_size =
-			ARRAY_SIZE(nr_run_thresholds_balance);
-#ifdef DEBUG_INTELLI_PLUG
-		pr_info("intelliplug: full mode active!");
-#endif
-	}
-	else {
-		current_profile = nr_run_profiles[NR_RUN_ECO_MODE_PROFILE];
+	current_profile = nr_run_profiles[nr_run_profile_sel];
+	if (num_possible_cpus() > 2) {
+		if (nr_run_profile_sel >= NR_RUN_ECO_MODE_PROFILE)
+			threshold_size =
+				ARRAY_SIZE(nr_run_thresholds_eco);
+		else
+			threshold_size =
+				ARRAY_SIZE(nr_run_thresholds_balance);
+	} else
 		threshold_size =
 			ARRAY_SIZE(nr_run_thresholds_eco);
 
-	nr_fshift = num_possible_cpus() - 1;
+	if (nr_run_profile_sel >= NR_RUN_ECO_MODE_PROFILE)
+		nr_fshift = 1;
+	else
+		nr_fshift = num_possible_cpus() - 1;
 
 	for (nr_run = 1; nr_run < threshold_size; nr_run++) {
 		unsigned int nr_threshold;
