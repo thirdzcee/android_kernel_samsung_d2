@@ -36,19 +36,19 @@
  * It helps to keep variable names smaller, simpler
  */
 
-#define DEF_SAMPLING_DOWN_FACTOR		(2)
+#define DEF_SAMPLING_DOWN_FACTOR		(5)
 #define MAX_SAMPLING_DOWN_FACTOR		(100000)
-#define DEF_FREQUENCY_DOWN_DIFFERENTIAL		(5)
-#define DEF_FREQUENCY_UP_THRESHOLD		(70)
+#define DEF_FREQUENCY_DOWN_DIFFERENTIAL		(10)
+#define DEF_FREQUENCY_UP_THRESHOLD		(95)
 
 /* for multiple freq_step */
 #define DEF_UP_THRESHOLD_DIFF			(5)
 
-#define DEF_FREQUENCY_MIN_SAMPLE_RATE		(5000)
-#define MIN_FREQUENCY_UP_THRESHOLD		(11)
+#define DEF_FREQUENCY_MIN_SAMPLE_RATE		(50000)
+#define MIN_FREQUENCY_UP_THRESHOLD		(50)
 #define MAX_FREQUENCY_UP_THRESHOLD		(100)
-#define DEF_SAMPLING_RATE			(40000)
-#define MIN_SAMPLING_RATE			(10000)
+#define DEF_SAMPLING_RATE			(80000)
+#define MIN_SAMPLING_RATE			(50000)
 
 #define DEF_FREQ_STEP				(55)
 /* for multiple freq_step */
@@ -56,10 +56,10 @@
 
 #define DEF_START_DELAY				(0)
 
-#define UP_THRESHOLD_AT_MIN_FREQ		(40)
-#define FREQ_FOR_RESPONSIVENESS			(1728000)
+#define UP_THRESHOLD_AT_MIN_FREQ		(75)
+#define FREQ_FOR_RESPONSIVENESS			(1026000)
 /* for fast decrease */
-#define FREQ_FOR_FAST_DOWN			(1190400)
+#define FREQ_FOR_FAST_DOWN			(702000)
 #define UP_THRESHOLD_AT_FAST_DOWN		(90)
 
 static unsigned int min_sampling_rate;
