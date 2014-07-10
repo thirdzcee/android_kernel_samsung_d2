@@ -374,6 +374,10 @@ static unsigned msm_ion_sf_size = MSM_ION_SF_SIZE;
 #define MSM_ION_HEAP_NUM    1
 #endif
 
+#ifdef CONFIG_CPU_FREQ_GOV_INTELLIDEMAND
+int id_set_two_phase_freq(int cpufreq);
+#endif
+
 #ifdef CONFIG_KERNEL_MSM_CONTIG_MEM_REGION
 static unsigned msm_contig_mem_size = MSM_CONTIG_MEM_SIZE;
 static int __init msm_contig_mem_size_setup(char *p)
@@ -5244,6 +5248,11 @@ static void __init msm8960_tsens_init(void)
 
 static void __init samsung_m2_init(void)
 {
+
+#ifdef CONFIG_CPU_FREQ_GOV_INTELLIDEMAND
+	id_set_two_phase_freq(1134000);
+#endif
+
 #ifdef CONFIG_SEC_DEBUG
 	sec_debug_init();
 #endif
