@@ -111,7 +111,7 @@ choice
 	config DEFAULT_CFQ
 		bool "CFQ" if IOSCHED_CFQ=y
 
-config DEFAULT_BFQ
+	config DEFAULT_BFQ
 		bool "BFQ" if IOSCHED_BFQ=y
 		help
 		  Selects BFQ as the default I/O scheduler which will be
