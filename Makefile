@@ -355,7 +355,10 @@ MODFLAGS		= -DMODULE -fgcse-lm -fgcse-sm -fsched-spec-load -fforce-addr -ffast-m
 CFLAGS_MODULE   = $(MODFLAGS) -fno-pic -mcpu=cortex-a15 -mtune=cortex-a15 -mfpu=neon-vfpv4
 AFLAGS_MODULE   = $(MODFLAGS)
 LDFLAGS_MODULE  = -T $(srctree)/scripts/module-common.lds
-CFLAGS_KERNEL	= -mcpu=cortex-a15 -mtune=cortex-a15 -mfpu=neon-vfpv4  -fgcse-lm -fgcse-sm -fsched-spec-load -fforce-addr -ffast-math -fsingle-precision-constant -mfpu=neon -ftree-vectorize -funswitch-loops
+CFLAGS_KERNEL  = $(KERNELFLAGS)
+ifeq ($(ENABLE_GRAPHITE),true)
+CFLAGS_KERNEL	= -fgraphite -mcpu=cortex-a15 -mtune=cortex-a15 -mfpu=neon-vfpv4  -fgcse-lm -fgcse-sm -fsched-spec-load -fforce-addr -ffast-math -fsingle-precision-constant -mfpu=neon -ftree-vectorize -funswitch-loops
+endif
 AFLAGS_KERNEL	=
 CFLAGS_GCOV	= -fprofile-arcs -ftest-coverage
 
