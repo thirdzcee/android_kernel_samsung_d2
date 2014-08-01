@@ -27,23 +27,33 @@
 #include <linux/msm_thermal.h>
 #include <mach/cpufreq.h>
 
-#define DEFAULT_POLLING_MS	250
+#define DEFAULT_POLLING_MS	500
 /* last 3 minutes based on 250ms polling cycle */
 #define MAX_HISTORY_SZ		((3*60*1000) / DEFAULT_POLLING_MS)
 
 struct msm_thermal_stat_data {
 	int32_t temp_history[MAX_HISTORY_SZ];
-	uint32_t overtemp;
+	uint32_t throttled;
 	uint32_t warning;
 	uint32_t normal;
 };
 static struct msm_thermal_stat_data msm_thermal_stats;
 
 static int enabled;
-static struct msm_thermal_data msm_thermal_info;
+static struct msm_thermal_data msm_thermal_info = {
+	.sensor_id = 5,
+	.poll_ms = DEFAULT_POLLING_MS,
+	.limit_temp_degC = 80,
+	.temp_hysteresis_degC = 10,
+	.freq_step = 2,
+	.freq_control_mask = 0xf,
+	.core_limit_temp_degC = 85,
+	.core_temp_hysteresis_degC = 10,
+	.core_control_mask = 0xe,
+};
 static uint32_t limited_max_freq_thermal = MSM_CPUFREQ_NO_LIMIT;
-static struct delayed_work check_temp_work;
 static struct workqueue_struct *intellithermal_wq;
+static struct delayed_work check_temp_work;
 static bool core_control_enabled;
 static uint32_t cpus_offlined;
 static DEFINE_MUTEX(core_control_mutex);
@@ -336,33 +346,24 @@ static ssize_t show_thermal_stats(struct kobject *kobj,
 	int i = 0;
 	int tmp = 0;
 
-	int overtemp, warning;
-
 	/* clear out old stats */
-	msm_thermal_stats.overtemp = 0;
+	msm_thermal_stats.throttled = 0;
 	msm_thermal_stats.warning = 0;
 	msm_thermal_stats.normal = 0;
 
-	overtemp = min(msm_thermal_info.limit_temp_degC,
-			msm_thermal_info.core_limit_temp_degC);
-
-	warning = min((msm_thermal_info.limit_temp_degC -
-	               msm_thermal_info.temp_hysteresis_degC),
-		      (msm_thermal_info.core_limit_temp_degC -
-		       msm_thermal_info.core_temp_hysteresis_degC));
-
 	for (i = 0; i < MAX_HISTORY_SZ; i++) {
 		tmp = msm_thermal_stats.temp_history[i];
-		if (tmp >= overtemp)
-			msm_thermal_stats.overtemp++;
-		else if (tmp < overtemp &&
-			 tmp >=	warning)
+		if (tmp >= msm_thermal_info.limit_temp_degC)
+			msm_thermal_stats.throttled++;
+		else if (tmp < msm_thermal_info.limit_temp_degC &&
+			 tmp >= (msm_thermal_info.limit_temp_degC -
+				 msm_thermal_info.temp_hysteresis_degC))
 			msm_thermal_stats.warning++;
 		else
 			msm_thermal_stats.normal++;
 	}
         return snprintf(buf, PAGE_SIZE, "%u %u %u\n",
-			msm_thermal_stats.overtemp,
+			msm_thermal_stats.throttled,
 			msm_thermal_stats.warning,
 			msm_thermal_stats.normal);
 }
