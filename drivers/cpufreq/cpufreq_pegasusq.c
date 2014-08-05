@@ -50,7 +50,7 @@
 #define DEF_SAMPLING_RATE			(80000)
 #define MIN_SAMPLING_RATE			(50000)
 
-#define DEF_FREQ_STEP				(55)
+#define DEF_FREQ_STEP				(20)
 /* for multiple freq_step */
 #define DEF_FREQ_STEP_DEC			(13)
 
@@ -59,7 +59,7 @@
 #define UP_THRESHOLD_AT_MIN_FREQ		(75)
 #define FREQ_FOR_RESPONSIVENESS			(1026000)
 /* for fast decrease */
-#define FREQ_FOR_FAST_DOWN			(702000)
+#define FREQ_FOR_FAST_DOWN			(918000)
 #define UP_THRESHOLD_AT_FAST_DOWN		(90)
 
 static unsigned int min_sampling_rate;
