@@ -25,8 +25,8 @@
 #include <linux/slab.h>
 
 #define DELAY		(HZ / 2)
-#define UP_THRESHOLD	(90)
-#define MIN_ONLINE	(1)
+#define UP_THRESHOLD	(20)
+#define MIN_ONLINE	(2)
 
 struct dyn_hp_data {
 	unsigned int up_threshold;
