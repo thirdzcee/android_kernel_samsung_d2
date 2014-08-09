@@ -110,7 +110,7 @@ static struct l2_level l2_freq_tbl[] __initdata = {
 #define AVS(x) .avsdscr_setting = (x)
 
 static struct acpu_level acpu_freq_tbl[] __initdata = {
-	{ 1, {    94500, HFPLL, 2, 0x07 }, L2(0),  850000 },
+	{ 1, {    94500, HFPLL, 2, 0x07 }, L2(0),  875000 },
 	{ 1, {   192000, HFPLL, 2, 0x0E }, L2(0),  875000 },
 	{ 1, {   384000, PLL_8, 0, 0x00 }, L2(0),  900000 },
 	{ 1, {   486000, HFPLL, 2, 0x24 }, L2(1),  925000 },
@@ -125,8 +125,7 @@ static struct acpu_level acpu_freq_tbl[] __initdata = {
 	{ 1, {  1458000, HFPLL, 1, 0x36 }, L2(9), 1175000 },
 	{ 1, {  1512000, HFPLL, 1, 0x38 }, L2(9), 1200000 },
 	{ 1, {  1620000, HFPLL, 1, 0x3C }, L2(9), 1200000 },
-	{ 1, {  1728000, HFPLL, 1, 0x40 }, L2(9), 1250000 },
-	{ 1, {  1836000, HFPLL, 1, 0x42 }, L2(9), 1300000 },	
+	{ 1, {  1728000, HFPLL, 1, 0x40 }, L2(9), 1250000 },	
 	{ 0, { 0 } }
 };
 
