@@ -37,30 +37,31 @@
 #define MAX_FREQUENCY_DOWN_DIFFERENTIAL     (60)
 #define MICRO_FREQUENCY_UP_THRESHOLD        (100)
 #define MICRO_FREQUENCY_MIN_SAMPLE_RATE     (80000)
-#define MIN_FREQUENCY_UP_THRESHOLD          (80)
+#define MIN_FREQUENCY_UP_THRESHOLD          (75)
 #define MAX_FREQUENCY_UP_THRESHOLD          (100)
 
-#define DEF_CPU_DOWN_THRESHOLD          (75)
+#define DEF_CPU_DOWN_THRESHOLD          (60)
 #define MICRO_CPU_DOWN_THRESHOLD        (80)
-#define MIN_CPU_DOWN_THRESHOLD          (70)
+#define MIN_CPU_DOWN_THRESHOLD          (50)
 #define MAX_CPU_DOWN_THRESHOLD          (85)
 
 #define LOAD_CRITICAL_GRADE             (90)
-#define LOAD_HIGH_GRADE                 (75)
-#define LOAD_WARNING_GRADE              (40)
-#define LOAD_MEDIUM_GRADE               (25)
-#define LOAD_LIGHT_GRADE                (15)
+#define LOAD_HIGH_GRADE                 (80)
+#define LOAD_WARNING_GRADE              (70)
+#define LOAD_MEDIUM_GRADE               (60)
+#define LOAD_LIGHT_GRADE                (40)
 
 #define LOAD_CRITICAL           (100)
 #define LOAD_HIGH               (90)
 #define LOAD_WARNING            (80)
-#define LOAD_MEDIUM             (50)
-#define LOAD_LIGHT              (30)
+#define LOAD_MEDIUM             (70)
+#define LOAD_LIGHT              (50)
 
 #define CPU_UP_BOUND            (100)
 #define CPU_DOWN_AVG_TIMES      (75)
 
-//#define DEBUG_LOG
+#DEFINE DEF_POWERSAVE_BIAS		(1)
+#DEFINE DEF_IGNORE				(1)
 
 /*
  * The polling frequency of this governor depends on the capability of
@@ -178,8 +179,8 @@ static struct dbs_tuners {
     .up_threshold = DEF_FREQUENCY_UP_THRESHOLD,
     .sampling_down_factor = DEF_SAMPLING_DOWN_FACTOR,
     .down_differential = DEF_FREQUENCY_DOWN_DIFFERENTIAL,
-    .ignore_nice = 0,
-    .powersave_bias = 0,
+    .ignore_nice = DEF_IGNORE_NICE,
+    .powersave_bias = DEF_POWERSAVE_BIAS,
     .cpu_down_threshold = DEF_CPU_DOWN_THRESHOLD,
     .load_critical_grade = LOAD_CRITICAL_GRADE,
     .load_high_grade = LOAD_HIGH_GRADE,
