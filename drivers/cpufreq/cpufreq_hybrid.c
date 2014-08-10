@@ -28,40 +28,40 @@
  * It helps to keep variable names smaller, simpler
  */
 
-#define DEF_FREQUENCY_DOWN_DIFFERENTIAL     (20)
+#define DEF_FREQUENCY_DOWN_DIFFERENTIAL     (10)
 #define DEF_FREQUENCY_UP_THRESHOLD          (95)
-#define DEF_SAMPLING_DOWN_FACTOR            (20)
+#define DEF_SAMPLING_DOWN_FACTOR            (10)
 #define MAX_SAMPLING_DOWN_FACTOR            (100000)
 #define MICRO_FREQUENCY_DOWN_DIFFERENTIAL   (40)
 #define MIN_FREQUENCY_DOWN_DIFFERENTIAL     (5)
 #define MAX_FREQUENCY_DOWN_DIFFERENTIAL     (60)
-#define MICRO_FREQUENCY_UP_THRESHOLD        (100)
-#define MICRO_FREQUENCY_MIN_SAMPLE_RATE     (80000)
+#define MICRO_FREQUENCY_UP_THRESHOLD        (90)
+#define MICRO_FREQUENCY_MIN_SAMPLE_RATE     (50000)
 #define MIN_FREQUENCY_UP_THRESHOLD          (75)
 #define MAX_FREQUENCY_UP_THRESHOLD          (100)
 
 #define DEF_CPU_DOWN_THRESHOLD          (60)
-#define MICRO_CPU_DOWN_THRESHOLD        (80)
-#define MIN_CPU_DOWN_THRESHOLD          (50)
-#define MAX_CPU_DOWN_THRESHOLD          (85)
+#define MICRO_CPU_DOWN_THRESHOLD        (50)
+#define MIN_CPU_DOWN_THRESHOLD          (40)
+#define MAX_CPU_DOWN_THRESHOLD          (80)
 
-#define LOAD_CRITICAL_GRADE             (90)
-#define LOAD_HIGH_GRADE                 (80)
-#define LOAD_WARNING_GRADE              (70)
-#define LOAD_MEDIUM_GRADE               (60)
-#define LOAD_LIGHT_GRADE                (40)
+#define LOAD_CRITICAL_GRADE             (50)
+#define LOAD_HIGH_GRADE                 (45)
+#define LOAD_WARNING_GRADE              (40)
+#define LOAD_MEDIUM_GRADE               (30)
+#define LOAD_LIGHT_GRADE                (20)
 
 #define LOAD_CRITICAL           (100)
 #define LOAD_HIGH               (90)
 #define LOAD_WARNING            (80)
-#define LOAD_MEDIUM             (70)
-#define LOAD_LIGHT              (50)
+#define LOAD_MEDIUM             (60)
+#define LOAD_LIGHT              (40)
 
 #define CPU_UP_BOUND            (100)
-#define CPU_DOWN_AVG_TIMES      (75)
+#define CPU_DOWN_AVG_TIMES      (40)
 
-#DEFINE DEF_POWERSAVE_BIAS		(1)
-#DEFINE DEF_IGNORE				(1)
+#define DEF_POWERSAVE_BIAS		(0)
+#define DEF_IGNORE_NICE			(0)
 
 /*
  * The polling frequency of this governor depends on the capability of
