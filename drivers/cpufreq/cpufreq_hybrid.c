@@ -28,28 +28,28 @@
  * It helps to keep variable names smaller, simpler
  */
 
-#define DEF_FREQUENCY_DOWN_DIFFERENTIAL     (10)
-#define DEF_FREQUENCY_UP_THRESHOLD          (90)
-#define DEF_SAMPLING_DOWN_FACTOR            (10)
+#define DEF_FREQUENCY_DOWN_DIFFERENTIAL     (20)
+#define DEF_FREQUENCY_UP_THRESHOLD          (95)
+#define DEF_SAMPLING_DOWN_FACTOR            (20)
 #define MAX_SAMPLING_DOWN_FACTOR            (100000)
-#define MICRO_FREQUENCY_DOWN_DIFFERENTIAL   (20)
+#define MICRO_FREQUENCY_DOWN_DIFFERENTIAL   (40)
 #define MIN_FREQUENCY_DOWN_DIFFERENTIAL     (5)
-#define MAX_FREQUENCY_DOWN_DIFFERENTIAL     (30)
-#define MICRO_FREQUENCY_UP_THRESHOLD        (95)
-#define MICRO_FREQUENCY_MIN_SAMPLE_RATE     (50000)
-#define MIN_FREQUENCY_UP_THRESHOLD          (50)
+#define MAX_FREQUENCY_DOWN_DIFFERENTIAL     (60)
+#define MICRO_FREQUENCY_UP_THRESHOLD        (100)
+#define MICRO_FREQUENCY_MIN_SAMPLE_RATE     (80000)
+#define MIN_FREQUENCY_UP_THRESHOLD          (80)
 #define MAX_FREQUENCY_UP_THRESHOLD          (100)
 
 #define DEF_CPU_DOWN_THRESHOLD          (75)
 #define MICRO_CPU_DOWN_THRESHOLD        (80)
-#define MIN_CPU_DOWN_THRESHOLD          (60)
+#define MIN_CPU_DOWN_THRESHOLD          (70)
 #define MAX_CPU_DOWN_THRESHOLD          (85)
 
-#define LOAD_CRITICAL_GRADE             (10)
-#define LOAD_HIGH_GRADE                 (5)
-#define LOAD_WARNING_GRADE              (0)
-#define LOAD_MEDIUM_GRADE               (-10)
-#define LOAD_LIGHT_GRADE                (-20)
+#define LOAD_CRITICAL_GRADE             (90)
+#define LOAD_HIGH_GRADE                 (75)
+#define LOAD_WARNING_GRADE              (40)
+#define LOAD_MEDIUM_GRADE               (25)
+#define LOAD_LIGHT_GRADE                (15)
 
 #define LOAD_CRITICAL           (100)
 #define LOAD_HIGH               (90)
@@ -58,7 +58,7 @@
 #define LOAD_LIGHT              (30)
 
 #define CPU_UP_BOUND            (100)
-#define CPU_DOWN_AVG_TIMES      (50)
+#define CPU_DOWN_AVG_TIMES      (75)
 
 //#define DEBUG_LOG
 
