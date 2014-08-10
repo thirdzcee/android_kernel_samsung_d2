@@ -400,8 +400,6 @@ obj-$(CONFIG_DEBUG_FS) += msm_cpr-debug.o
 endif
 obj-$(CONFIG_MSM_CPU_PWRCTL) +=  msm_cpu_pwrctl.o
 
-obj-$(CONFIG_INTELLI_PLUG) += intelli_plug.o
-
 obj-$(CONFIG_SEC_DEBUG) += sec_debug.o sec_getlog.o sec_gaf.o
 
 obj-$(CONFIG_ARCH_RANDOM) += early_random.o
