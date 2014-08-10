@@ -1725,20 +1725,20 @@ void __init kmem_cache_init_late(void)
 {
 	struct kmem_cache *cachep;
 
-        slab_state = UP;
+	slab_state = UP;
 
-        /* 6) resize the head arrays to their final sizes */
-        mutex_lock(&slab_mutex);
-        list_for_each_entry(cachep, &slab_caches, list)
-                if (enable_cpucache(cachep, GFP_NOWAIT))
-                        BUG();
-        mutex_unlock(&slab_mutex);
+	/* 6) resize the head arrays to their final sizes */
+	mutex_lock(&slab_mutex);
+	list_for_each_entry(cachep, &slab_caches, list)
+		if (enable_cpucache(cachep, GFP_NOWAIT))
+			BUG();
+	mutex_unlock(&slab_mutex);
 
-        /* Annotate slab for lockdep -- annotate the malloc caches */
-        init_lock_keys();
+	/* Annotate slab for lockdep -- annotate the malloc caches */
+	init_lock_keys();
 
-        /* Done! */
-        slab_state = FULL;
+	/* Done! */
+	slab_state = FULL;
 
         /*
          * Register a cpu startup notifier callback that initializes
@@ -2231,14 +2231,6 @@ static int __init_refok setup_cpu_cache(struct kmem_cache *cachep, gfp_t gfp)
 		return enable_cpucache(cachep, gfp);
 
 	if (slab_state == DOWN) {
-		/*
-		 * Note: Creation of first cache (kmem_cache).
-		 * The setup_list3s is taken care
-		 * of by the caller of __kmem_cache_create
-		 */
-		cachep->array[smp_processor_id()] = &initarray_generic.cache;
-		slab_state = PARTIAL;
-	} else if (slab_state == PARTIAL) {
 		/*
 		 * Note: the second kmem_cache_create must create the cache
 		 * that's used by kmalloc(24), otherwise the creation of
