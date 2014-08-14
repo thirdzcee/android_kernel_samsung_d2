@@ -4096,7 +4096,6 @@ unsigned int tabla_read(struct snd_soc_codec *codec,
 }
 #ifdef CONFIG_SOUND_CONTROL_HAX_3_GPL
 EXPORT_SYMBOL(tabla_read);
-#endif
 
 #ifndef CONFIG_SOUND_CONTROL_HAX_3_GPL
 static
