@@ -8902,6 +8902,7 @@ EXPORT_SYMBOL(fauxsound_codec_ptr);
 int wcd9xxx_hw_revision;
 EXPORT_SYMBOL(wcd9xxx_hw_revision);
 #endif
+#endif
 
 static int tabla_codec_probe(struct snd_soc_codec *codec)
 {
@@ -8919,12 +8920,6 @@ static int tabla_codec_probe(struct snd_soc_codec *codec)
 	codec->control_data = dev_get_drvdata(codec->dev->parent);
 	control = codec->control_data;
 
-#ifdef CONFIG_SOUND_CONTROL_HAX_3_GPL
-	if (TABLA_IS_2_0(control->version))
-		wcd9xxx_hw_revision = 1;
-	else
-		wcd9xxx_hw_revision = 2;
-#endif
 	tabla = kzalloc(sizeof(struct tabla_priv), GFP_KERNEL);
 	if (!tabla) {
 		dev_err(codec->dev, "Failed to allocate private data\n");
