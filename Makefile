@@ -352,12 +352,12 @@ CC		= $(srctree)/scripts/gcc-wrapper.py $(REAL_CC)
 CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
 		  -Wbitwise -Wno-return-void $(CF)
 MODFLAGS		= -DMODULE -fgcse-lm -fgcse-sm -fsched-spec-load -fforce-addr -ffast-math -fsingle-precision-constant -mfpu=neon -ftree-vectorize -funswitch-loops
-CFLAGS_MODULE   = $(MODFLAGS) -fno-pic -mcpu=cortex-a15 -mtune=cortex-a15 -mfpu=neon-vfpv4
+CFLAGS_MODULE   = $(MODFLAGS) -fno-pic -mcpu=cortex-a15 -mtune=cortex-a15 -mfpu=neon-vfpv4 -mrestrict-it
 AFLAGS_MODULE   = $(MODFLAGS)
 LDFLAGS_MODULE  = -T $(srctree)/scripts/module-common.lds
 CFLAGS_KERNEL  = $(KERNELFLAGS)
 ifeq ($(ENABLE_GRAPHITE),true)
-CFLAGS_KERNEL	= -fgraphite -mcpu=cortex-a15 -mtune=cortex-a15 -mfpu=neon-vfpv4  -fgcse-lm -fgcse-sm -fsched-spec-load -fforce-addr -ffast-math -fsingle-precision-constant -mfpu=neon -ftree-vectorize -funswitch-loops
+CFLAGS_KERNEL	= -fgraphite -mcpu=cortex-a15 -mtune=cortex-a15 -mfpu=neon-vfpv4  -fgcse-lm -fgcse-sm -fsched-spec-load -fforce-addr -ffast-math -fsingle-precision-constant -mfpu=neon -ftree-vectorize -funswitch-loops -mrestrict-it
 endif
 AFLAGS_KERNEL	=
 CFLAGS_GCOV	= -fprofile-arcs -ftest-coverage
