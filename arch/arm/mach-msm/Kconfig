@@ -1636,6 +1636,13 @@ config MSM_SLEEPER
 	default y
 	help
 	  Limit max frequency while screen is off
+	  
+config GPU_VOLTAGE_TABLE
+	bool "Enable GPU Voltage Table via sysfs for adjustements"
+	depends on CPU_VOLTAGE_TABLE
+	default n
+	help
+	  Adreno GPU User Voltage Control
 
 config MSM_AVS_HW
 	bool "Enable Adaptive Voltage Scaling (AVS)"
