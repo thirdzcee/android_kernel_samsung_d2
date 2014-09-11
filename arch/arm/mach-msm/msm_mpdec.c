@@ -46,7 +46,7 @@
 #define MSM_MPDEC_STARTDELAY            20000
 #define MSM_MPDEC_DELAY                 130
 #define MSM_MPDEC_PAUSE                 10000
-#define MSM_MPDEC_IDLE_FREQ             486000
+#define MSM_MPDEC_IDLE_FREQ             384000
 #ifdef CONFIG_MSM_MPDEC_INPUTBOOST_CPUMIN
 #define MSM_MPDEC_BOOSTTIME             1000
 #define MSM_MPDEC_BOOSTFREQ_CPU0        918000
@@ -125,7 +125,7 @@ static struct msm_mpdec_tuners {
 #endif
 };
 
-static unsigned int NwNs_Threshold[8] = {12, 0, 20, 7, 25, 10, 0, 18};
+static unsigned int NwNs_Threshold[8] = {20, 0, 20, 10, 25, 10, 0, 18};
 static unsigned int TwTs_Threshold[8] = {140, 0, 140, 190, 140, 190, 0, 190};
 
 extern unsigned int get_rq_info(void);
