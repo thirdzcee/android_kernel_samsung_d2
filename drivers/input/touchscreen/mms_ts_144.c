@@ -566,13 +566,11 @@ static void melfas_ta_cb(struct tsp_callbacks *cb, bool ta_status)
 
 #ifdef CONFIG_TOUCHSCREEN_PREVENT_SLEEP
 static bool isasleep = false;
-static struct input_dev *slide2wake_dev;
 static DEFINE_MUTEX(s2w_lock);
 static DEFINE_SEMAPHORE(s2w_sem);
 extern int get_suspend_state(void);
 extern void request_suspend_state(int);
 bool s2w_enabled = false;
-bool s2w_enabled_plug = false;
 static unsigned int s2w_enabled_req = 0;
 
 static int mms_ts_enable(struct mms_ts_info *info, int wakeupcmd)
@@ -637,42 +635,6 @@ out:
 	return 0;
 }
 
-void slide2wake_setdev(struct input_dev *input_device)
-{
-	slide2wake_dev = input_device;
-}
-
-static void slide2wake_force_wakeup(void)
-{
-	int state;
-	mutex_lock(&s2w_lock);
-	state = get_suspend_state();
-	pr_info("WAKE_START suspend state: %d\n", state);
-	if (state != 0)
-		request_suspend_state(0);
-	msleep(100);
-	mutex_unlock(&s2w_lock);
-}
-
-static void slide2wake_presspwr(struct work_struct *slide2wake_presspwr_work)
-{
-	input_event(slide2wake_dev, EV_KEY, KEY_POWER, 1);
-	input_event(slide2wake_dev, EV_SYN, 0, 0);
-	msleep(250);
-	input_event(slide2wake_dev, EV_KEY, KEY_POWER, 0);
-	input_event(slide2wake_dev, EV_SYN, 0, 0);
-	mutex_unlock(&s2w_lock);
-	msleep(1000);
-	pr_info("WAKE_START OFF-2 %d\n", slide2wake_dev->id.version);
-}
-
-static DECLARE_WORK(slide2wake_presspwr_work, slide2wake_presspwr);
-
-void slide2wake_pwrtrigger(void)
-{
-	if (mutex_trylock(&s2w_lock))
-		schedule_work(&slide2wake_presspwr_work);
-}
 #endif
 
 static irqreturn_t mms_ts_interrupt(int irq, void *dev_id)
@@ -3032,21 +2994,6 @@ static ssize_t slide2wake_store(struct device *dev, struct device_attribute *att
 		s2w_enabled = value ? true : false;
 
 	return size;
-}
-
-void slide2wake_change(unsigned int val)
-{
-	if (s2w_enabled_plug)
-	{
-		if (isasleep)
-			s2w_enabled_req = val;
-		else
-			s2w_enabled = (val - 10) ? true : false;
-	}
-	else
-	{
-		s2w_enabled_req = val + 10;
-	}
 }
 
 static DEVICE_ATTR(slide2wake, S_IRUGO | S_IWUSR | S_IWGRP,
