@@ -26,8 +26,10 @@ extern bool early_suspend_active;
 extern bool dyn_fsync_active;
 #endif
 
+#ifdef CONFIG_FSYNC_CONTROL
 bool fsync_enabled = true;
 module_param(fsync_enabled, bool, 0755);
+#endif
 
 #define VALID_FLAGS (SYNC_FILE_RANGE_WAIT_BEFORE|SYNC_FILE_RANGE_WRITE| \
 			SYNC_FILE_RANGE_WAIT_AFTER)
@@ -158,9 +160,11 @@ SYSCALL_DEFINE1(syncfs, int, fd)
 	struct super_block *sb;
 	int ret;
 	int fput_needed;
-	
+
+#ifdef CONFIG_FSYNC_CONTROL	
 	if (!fsync_enabled)
 		return 0;
+#endif
 
 	file = fget_light(fd, &fput_needed);
 	if (!file)
@@ -193,8 +197,11 @@ int vfs_fsync_range(struct file *file, loff_t start, loff_t end, int datasync)
 		return 0;
 	else {
 #endif
+
+#ifdef CONFIG_FSYNC_CONTROL
 	if (!fsync_enabled)
 		return 0;
+#endif		
 		
 	if (!file->f_op || !file->f_op->fsync)
 		return -EINVAL;
@@ -215,8 +222,10 @@ EXPORT_SYMBOL(vfs_fsync_range);
  */
 int vfs_fsync(struct file *file, int datasync)
 {
+#ifdef CONFIG_FSYNC_CONTROL
 	if (!fsync_enabled)
 		return 0;
+#endif
 		
 	return vfs_fsync_range(file, 0, LLONG_MAX, datasync);
 }
@@ -284,9 +293,11 @@ static int do_fsync(unsigned int fd, int datasync)
 #ifdef CONFIG_ASYNC_FSYNC
 	struct fsync_work *fwork;
 #endif
-	
+
+#ifdef CONFIG_FSYNC_CONTROL	
 	if (!fsync_enabled)
 		return 0;
+#endif
 
 	file = fget(fd);
 	if (file) {
@@ -340,8 +351,11 @@ SYSCALL_DEFINE1(fsync, unsigned int, fd)
 		return 0;
 	else
 #endif
+
+#ifdef CONFIG_FSYNC_CONTROL
 	if (!fsync_enabled)
 		return 0;
+#endif	
 	
 	return do_fsync(fd, 0);
 }
@@ -353,8 +367,11 @@ SYSCALL_DEFINE1(fdatasync, unsigned int, fd)
 		return 0;
 	else
 #endif
+
+#ifdef CONFIG_FSYNC_CONTROL
 	if (!fsync_enabled)
 		return 0;
+#endif		
 		
 	return do_fsync(fd, 1);
 }
@@ -369,8 +386,10 @@ SYSCALL_DEFINE1(fdatasync, unsigned int, fd)
  */
 int generic_write_sync(struct file *file, loff_t pos, loff_t count)
 {
+#ifdef CONFIG_FSYNC_CONTROL
 	if (!fsync_enabled)
 		return 0;
+#endif
 		
 	if (!(file->f_flags & O_DSYNC) && !IS_SYNC(file->f_mapping->host))
 		return 0;
@@ -442,8 +461,10 @@ SYSCALL_DEFINE(sync_file_range)(int fd, loff_t offset, loff_t nbytes,
 	int fput_needed;
 	umode_t i_mode;
 
+#ifdef CONFIG_FSYNC_CONTROL
 	if (!fsync_enabled)
 		return 0;
+#endif
 
 	ret = -EINVAL;
 	if (flags & ~VALID_FLAGS)
