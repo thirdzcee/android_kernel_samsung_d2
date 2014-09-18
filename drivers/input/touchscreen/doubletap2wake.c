@@ -218,7 +218,7 @@ static void detect_doubletap2wake(int x, int y, bool st)
 		if ((touch_nr > 1)) {
 			pr_info(LOGTAG"double tap\n");
 			exec_count = false;
-			set_vibrate(vib_strength);
+//			set_vibrate(vib_strength);
 			if (gestures_switch) {
 				report_gesture(5);
 			} else {
