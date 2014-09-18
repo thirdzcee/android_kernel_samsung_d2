@@ -642,18 +642,6 @@ void slide2wake_setdev(struct input_dev *input_device)
 	slide2wake_dev = input_device;
 }
 
-static void slide2wake_force_wakeup(void)
-{
-	int state;
-	mutex_lock(&s2w_lock);
-	state = get_suspend_state();
-	pr_info("WAKE_START suspend state: %d\n", state);
-	if (state != 0)
-		request_suspend_state(0);
-	msleep(100);
-	mutex_unlock(&s2w_lock);
-}
-
 static void slide2wake_presspwr(struct work_struct *slide2wake_presspwr_work)
 {
 	input_event(slide2wake_dev, EV_KEY, KEY_POWER, 1);
