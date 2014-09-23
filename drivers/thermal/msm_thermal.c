@@ -20,6 +20,9 @@
 #include <linux/workqueue.h>
 #include <linux/cpu.h>
 #include <linux/reboot.h>
+#include <mach/cpufreq.h>
+
+static uint32_t limited_max_freq = MSM_CPUFREQ_NO_LIMIT;
 
 #define DEF_TEMP_SENSOR      0
 
