@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2013, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2012, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -97,67 +97,7 @@ static int update_cpu_max_freq(struct cpufreq_policy *cpu_policy,
 	return ret;
 }
 
-static void __cpuinit do_core_control(long temp)
-{
-	int i = 0;
-	int ret = 0;
-
-	if (!core_control_enabled)
-		return;
-
-	/**
-	 *  Offline cores starting from the max MPIDR to 1, when above limit,
-	 *  The core control mask is non zero and allows the core to be turned
-	 *  off.
-	 *  The core was not previously offlined by this module
-	 *  The core is the next in sequence.
-	 *  If the core was online for some reason, even after it was offlined
-	 *  by this module, offline it again.
-	 *  Online the back on if the temp is below the hysteresis and was
-	 *  offlined by this module and not already online.
-	 */
-	mutex_lock(&core_control_mutex);
-	if (msm_thermal_info.core_control_mask &&
-		temp >= msm_thermal_info.core_limit_temp_degC) {
-		for (i = num_possible_cpus(); i > 0; i--) {
-			if (!(msm_thermal_info.core_control_mask & BIT(i)))
-				continue;
-			if (cpus_offlined & BIT(i) && !cpu_online(i))
-				continue;
-			pr_info("%s: Set Offline: CPU%d Temp: %ld\n",
-					KBUILD_MODNAME, i, temp);
-			ret = cpu_down(i);
-			if (ret)
-				pr_err("%s: Error %d offline core %d\n",
-					KBUILD_MODNAME, ret, i);
-			cpus_offlined |= BIT(i);
-			break;
-		}
-	} else if (msm_thermal_info.core_control_mask && cpus_offlined &&
-		temp <= (msm_thermal_info.core_limit_temp_degC -
-			msm_thermal_info.core_temp_hysteresis_degC)) {
-		for (i = 0; i < num_possible_cpus(); i++) {
-			if (!(cpus_offlined & BIT(i)))
-				continue;
-			cpus_offlined &= ~BIT(i);
-			pr_info("%s: Allow Online CPU%d Temp: %ld\n",
-					KBUILD_MODNAME, i, temp);
-			/* If this core is already online, then bring up the
-			 * next offlined core.
-			 */
-			if (cpu_online(i))
-				continue;
-			ret = cpu_up(i);
-			if (ret)
-				pr_err("%s: Error %d online core %d\n",
-						KBUILD_MODNAME, ret, i);
-			break;
-		}
-	}
-	mutex_unlock(&core_control_mutex);
-}
-
-static void __cpuinit check_temp(struct work_struct *work)
+static void check_temp(struct work_struct *work)
 {
 	struct cpufreq_policy *cpu_policy = NULL;
 	struct tsens_device tsens_dev;
@@ -260,36 +200,7 @@ reschedule:
 				msecs_to_jiffies(msm_thermal_tuners_ins.check_interval_ms));
 }
 
-static int __cpuinit msm_thermal_cpu_callback(struct notifier_block *nfb,
-		unsigned long action, void *hcpu)
-{
-	unsigned int cpu = (unsigned long)hcpu;
-
-	if (action == CPU_UP_PREPARE || action == CPU_UP_PREPARE_FROZEN) {
-		if (core_control_enabled &&
-			(msm_thermal_info.core_control_mask & BIT(cpu)) &&
-			(cpus_offlined & BIT(cpu))) {
-			pr_info(
-			"%s: Preventing cpu%d from coming online.\n",
-				KBUILD_MODNAME, cpu);
-			return NOTIFY_BAD;
-		}
-	}
-
-
-	return NOTIFY_OK;
-}
-
-static struct notifier_block __refdata msm_thermal_cpu_notifier = {
-	.notifier_call = msm_thermal_cpu_callback,
-};
-
-/**
- * We will reset the cpu frequencies limits here. The core online/offline
- * status will be carried over to the process stopping the msm_thermal, as
- * we dont want to online a core and bring in the thermal issues.
- */
-static void __cpuinit disable_msm_thermal(void)
+static void disable_msm_thermal(void)
 {
 	int cpu = 0;
 	struct cpufreq_policy *cpu_policy = NULL;
@@ -313,7 +224,7 @@ static void __cpuinit disable_msm_thermal(void)
 	}
 }
 
-static int __cpuinit set_enabled(const char *val, const struct kernel_param *kp)
+static int set_enabled(const char *val, const struct kernel_param *kp)
 {
 	int ret = 0;
 
@@ -321,10 +232,9 @@ static int __cpuinit set_enabled(const char *val, const struct kernel_param *kp)
 	if (!enabled)
 		disable_msm_thermal();
 	else
-		pr_info("%s: no action for enabled = %d\n",
-				KBUILD_MODNAME, enabled);
+		pr_info("msm_thermal: no action for enabled = %d\n", enabled);
 
-	pr_info("%s: enabled = %d\n", KBUILD_MODNAME, enabled);
+	pr_info("msm_thermal: enabled = %d\n", enabled);
 
 	return ret;
 }
@@ -536,7 +446,6 @@ static int __init msm_thermal_init(void)
 	int rc, ret = 0;
 
 	enabled = 1;
-	core_control_enabled = 1;
 	INIT_DELAYED_WORK(&check_temp_work, check_temp);
 	schedule_delayed_work(&check_temp_work, 0);
 
