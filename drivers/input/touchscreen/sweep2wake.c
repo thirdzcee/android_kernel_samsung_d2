@@ -57,22 +57,12 @@ MODULE_LICENSE("GPLv2");
 #define S2W_S2SONLY_DEFAULT	0
 #define S2W_PWRKEY_DUR          60
 
-#ifdef CONFIG_MACH_MSM8974_HAMMERHEAD
-/* Hammerhead aka Nexus 5 */
-#define DEFAULT_S2W_Y_MAX               1920
-#define DEFAULT_S2W_X_MAX               1080
-#define DEFAULT_S2W_Y_LIMIT             DEFAULT_S2W_Y_MAX-130
-#define DEFAULT_S2W_X_B1                400
-#define DEFAULT_S2W_X_B2                700
-#define DEFAULT_S2W_X_FINAL             250
-#else
 /* defaults */
-#define DEFAULT_S2W_Y_LIMIT             2350
-#define DEFAULT_S2W_X_MAX               1540
-#define DEFAULT_S2W_X_B1                500
-#define DEFAULT_S2W_X_B2                1000
+#define DEFAULT_S2W_Y_LIMIT             1280
+#define DEFAULT_S2W_X_MAX               720
+#define DEFAULT_S2W_X_B1                250
+#define DEFAULT_S2W_X_B2                500
 #define DEFAULT_S2W_X_FINAL             300
-#endif
 
 
 /* Resources */
