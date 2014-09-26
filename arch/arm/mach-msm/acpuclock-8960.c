@@ -118,8 +118,11 @@ static struct l2_level l2_freq_tbl[] __initdata = {
 #define AVS(x) .avsdscr_setting = (x)
 
 static struct acpu_level acpu_freq_tbl_slow[] __initdata = {
-	{ 1, {    94500, HFPLL, 2, 0x07 }, L2(0),   950000 },
-	{ 1, {   192000, HFPLL, 2, 0x0E }, L2(0),   950000 },
+	{ 1, {	  54000, HFPLL, 2, 0x04 }, L2(0),	900000 },
+	{ 1, {    94500, HFPLL, 2, 0x07 }, L2(0),   900000 },
+	{ 1, { 	 108000, HFPLL, 2, 0x08 }, L2(0), 	900000 },
+	{ 1, {   192000, HFPLL, 2, 0x0E }, L2(0),   925000 },
+	{ 1, {	 216000, HFPLL, 2, 0x10 }, L2(0), 	925000 },
 	{ 1, {	 270000, HFPLL, 2, 0x14 }, L2(0),	950000 },
 	{ 1, {   384000, PLL_8, 0, 0x00 }, L2(0),   950000, AVS(0x40001F) },
 	{ 1, {   432000, HFPLL, 2, 0x20 }, L2(6),   975000 },
@@ -163,8 +166,11 @@ static struct acpu_level acpu_freq_tbl_slow[] __initdata = {
 };
 
 static struct acpu_level acpu_freq_tbl_nom[] __initdata = {
+	{ 1, {	  54000, HFPLL, 2, 0x04 }, L2(0),	850000 },
 	{ 1, {    94500, HFPLL, 2, 0x07 }, L2(0),   850000 },
+	{ 1, { 	 108000, HFPLL, 2, 0x08 }, L2(0), 	850000 },
 	{ 1, {   192000, HFPLL, 2, 0x0E }, L2(0),   875000 },
+	{ 1, { 	 216000, HFPLL, 2, 0x10 }, L2(0),	875000 },
 	{ 1, {	 270000, HFPLL, 2, 0x14 }, L2(0),	875000 },
 	{ 1, {   384000, PLL_8, 0, 0x00 }, L2(0),   900000, AVS(0x40007F) },
 	{ 1, {   432000, HFPLL, 2, 0x20 }, L2(6),   925000 },
@@ -208,8 +214,11 @@ static struct acpu_level acpu_freq_tbl_nom[] __initdata = {
 };
 
 static struct acpu_level acpu_freq_tbl_fast[] __initdata = {
-	{ 1, {    94500, HFPLL, 2, 0x07 }, L2(0),   850000 },
-	{ 1, {   192000, HFPLL, 2, 0x0E }, L2(0),   850000 },
+	{ 1, {	  54000, HFPLL, 2, 0x04 }, L2(0), 	800000 },
+	{ 1, {    94500, HFPLL, 2, 0x07 }, L2(0),   800000 },
+	{ 1, { 	 108000, HFPLL, 2, 0x08 }, L2(0), 	800000 },
+	{ 1, {   192000, HFPLL, 2, 0x0E }, L2(0),   825000 },
+	{ 1, { 	 216000, HFPLL, 2, 0x10 }, L2(0),	825000 },
 	{ 1, {	 270000, HFPLL, 2, 0x14 }, L2(0),	850000 },
 	{ 1, {   384000, PLL_8, 0, 0x00 }, L2(0),   850000, AVS(0x4000FF) },
 	{ 1, {   432000, HFPLL, 2, 0x20 }, L2(6),   875000 },
