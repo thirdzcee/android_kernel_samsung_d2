@@ -566,12 +566,7 @@ static void melfas_ta_cb(struct tsp_callbacks *cb, bool ta_status)
 
 #ifdef CONFIG_TOUCHSCREEN_PREVENT_SLEEP
 static bool isasleep = false;
-static DEFINE_MUTEX(s2w_lock);
-static DEFINE_SEMAPHORE(s2w_sem);
-extern int get_suspend_state(void);
-extern void request_suspend_state(int);
 bool s2w_enabled = false;
-static unsigned int s2w_enabled_req = 0;
 
 static int mms_ts_enable(struct mms_ts_info *info, int wakeupcmd)
 {
@@ -597,16 +592,6 @@ out:
 	info->enabled = true;
 	isasleep = false;
 	mutex_unlock(&info->lock);
-	if (s2w_enabled_req == 11)
-	{
-		s2w_enabled = true;
-		s2w_enabled_req = 0;
-	}	
-	if (s2w_enabled_req == 10)
-	{
-		s2w_enabled = false;
-		s2w_enabled_req = 0;
-	}	
 	return 0;
 }
 
