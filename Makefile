@@ -356,11 +356,18 @@ MODFLAGS		= -DMODULE -fgcse-lm -fgcse-sm -fsched-spec-load -fforce-addr -ffast-m
 CFLAGS_MODULE   = $(MODFLAGS) -fno-pic -mcpu=cortex-a15 -mtune=cortex-a15 -mfpu=neon-vfpv4 -mrestrict-it
 AFLAGS_MODULE   = $(MODFLAGS)
 LDFLAGS_MODULE  = -T $(srctree)/scripts/module-common.lds
-CFLAGS_KERNEL  = $(KERNELFLAGS)
-ifeq ($(ENABLE_GRAPHITE),true)
-CFLAGS_KERNEL	= -fgraphite -mcpu=cortex-a15 -mtune=cortex-a15 -mfpu=neon-vfpv4  -fgcse-lm -fgcse-sm -fsched-spec-load -fforce-addr -ffast-math -fsingle-precision-constant -mfpu=neon -ftree-vectorize -funswitch-loops -mrestrict-it
-endif
-AFLAGS_KERNEL	=
+CUSTOM_FLAGS 	= -fgcse-lm -fgcse-sm -fsched-spec-load -fgcse-after-reload \
+				  -fforce-addr -ffast-math -fsingle-precision-constant \
+				  -mcpu=cortex-a15 -mtune=cortex-a15 -mfpu=neon-vfpv4 -ftree-vectorize \
+				  -mvectorize-with-neon-quad -marm \
+				  -funroll-loops -mvectorize-with-neon-quad -pipe \
+				  -fgraphite -floop-interchange -ftree-loop-distribution -floop-strip-mine -floop-block \
+				  -munaligned-access -fpredictive-commoning \
+				  -funsafe-loop-optimizations -fivopts -ftree-loop-im -ftree-loop-ivcanon -ffunction-sections -fdata-sections -funswitch-loops -frename-registers -frerun-cse-after-loop -fomit-frame-pointer -fgcse-las -fweb -ftracer
+
+#CFLAGS_KERNEL	= -fgraphite -mcpu=cortex-a15 -mtune=cortex-a15 -mfpu=neon-vfpv4  -fgcse-lm -fgcse-sm -fsched-spec-load -fforce-addr -ffast-math -fsingle-precision-constant -mfpu=neon -ftree-vectorize -funswitch-loops -mrestrict-it
+CFLAGS_KERNEL	= $(CUSTOM_FLAGS)
+AFLAGS_KERNEL	= $(CUSTOM_FLAGS)
 CFLAGS_GCOV	= -fprofile-arcs -ftest-coverage
 
 
