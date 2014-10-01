@@ -1624,6 +1624,13 @@ config MSM_SLEEPER
 	help
 	  Limit max frequency while screen is off
 
+config CPU_VOLT_CONTROL
+	bool "enable voltage control?"
+	default y
+	help
+	  cpu voltage control, name says it all god damn it
+	  do i have to explain!?
+
 config MSM_AVS_HW
 	bool "Enable Adaptive Voltage Scaling (AVS)"
 	default n
