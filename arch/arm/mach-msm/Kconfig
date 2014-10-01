@@ -1625,7 +1625,7 @@ config MSM_CPU_FREQ_SET_MIN_MAX
 config MSM_CPU_FREQ_MAX
 	int "Max CPU Frequency"
 	depends on MSM_CPU_FREQ_SET_MIN_MAX
-	default 1512000
+	default 1566000
 
 config MSM_CPU_FREQ_MIN
 	int "Min CPU Frequency"
@@ -1639,12 +1639,6 @@ config MSM_SLEEPER
 	default y
 	help
 	  Limit max frequency while screen is off
-
-config USERSPACE_VOLTAGE_CONTROL
-	bool "Enable Userspace CPU Voltage Control"
-	default y
-	help
-	  Userspace Voltage Control
 
 config BYPASS_VMIN
 	bool "Bypass Qcom's errata checks that enforce minimum CPU voltages"
