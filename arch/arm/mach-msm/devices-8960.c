@@ -3340,6 +3340,8 @@ static struct msm_dcvs_freq_entry grp3d_freq[] = {
 	{0, 900, 0, 0, 0},
 	{0, 950, 0, 0, 0},
 	{0, 950, 0, 0, 0},
+	{0, 950, 0, 0, 0},
+	{0, 950, 0, 0, 0},
 	{0, 1100, 0, 100, 100},
 	{0, 1150, 1, 125, 125},
 	{0, 1200, 1, 175, 175},
@@ -3655,13 +3657,23 @@ static struct kgsl_device_platform_data kgsl_3d0_pdata = {
 			.io_fraction = 0,
 		},
 		{
-			.gpu_freq = 300000000,
+			.gpu_freq = 320000000,
 			.bus_freq = 3,
+			.io_fraction = 33,
+		},
+		{
+			.gpu_freq = 266667000,
+			.bus_freq = 2,
 			.io_fraction = 33,
 		},
 		{
 			.gpu_freq = 200000000,
 			.bus_freq = 2,
+			.io_fraction = 100,
+		},
+		{
+			.gpu_freq = 160000000,
+			.bus_freq = 1,
 			.io_fraction = 100,
 		},
 		{
