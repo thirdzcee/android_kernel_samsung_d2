@@ -737,14 +737,14 @@ static int smb347_set_charging_current(struct i2c_client *client,
 
 	pr_info("%s : %d\n", __func__, chg_current);
 
-	if (chg_current < 450 || chg_current > 1200)
+	if (chg_current < 450 || chg_current > 2000)
 		return -EINVAL;
 
 	chip->chg_set_current = chg_current;
 
 	if (chg_current == 500) {
 		chip->chg_mode = CHG_MODE_USB;
-	} else if (chg_current == 900) {
+	} else if (chg_current >= 900) {
 		chip->chg_mode = CHG_MODE_AC;
 	} else if (chg_current == 700) {
 		chip->chg_mode = CHG_MODE_MISC;
