@@ -3649,7 +3649,7 @@ static struct rcg_clk gfx3d_clk = {
 	.c = {
 		.dbg_name = "gfx3d_clk",
 		.ops = &clk_ops_rcg,
-		VDD_DIG_FMAX_MAP3(LOW,  96000000, NOMINAL, 300000000,
+		VDD_DIG_FMAX_MAP3(LOW,  96000000, NOMINAL, 320000000,
 				  HIGH, 600000000),
 		CLK_INIT(gfx3d_clk.c),
 		.depends = &gmem_axi_clk.c,
