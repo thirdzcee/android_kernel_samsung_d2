@@ -566,7 +566,6 @@ static void melfas_ta_cb(struct tsp_callbacks *cb, bool ta_status)
 
 #ifdef CONFIG_TOUCHSCREEN_PREVENT_SLEEP
 static bool isasleep = false;
-bool s2w_enabled = false;
 
 static int mms_ts_enable(struct mms_ts_info *info, int wakeupcmd)
 {
@@ -581,7 +580,7 @@ static int mms_ts_enable(struct mms_ts_info *info, int wakeupcmd)
 out:
 	if (isasleep)
 	{
-		if (s2w_enabled)
+		if (s2w_switch > 0 || dt2w_switch > 0)
 			disable_irq_wake(info->irq);
 		else
 		{
@@ -607,12 +606,12 @@ static int mms_ts_disable(struct mms_ts_info *info, int sleepcmd)
 out:
 	if (!isasleep)
 	{
-		if (!isasleep && s2w_enabled)
+		if (!isasleep && (s2w_switch > 0 || dt2w_switch > 0))
 			enable_irq_wake(info->irq);
 		else
 			disable_irq(info->irq);
 	}
-	if (!s2w_enabled)
+	if (s2w_switch < 1 || dt2w_switch < 1)
 		info->enabled = false;
 	isasleep = true;
 	touch_is_pressed = 0;
@@ -2961,29 +2960,6 @@ static ssize_t show_intensity_logging_off(struct device *dev,
 
 #endif
 
-#ifdef CONFIG_TOUCHSCREEN_PREVENT_SLEEP
-static ssize_t slide2wake_show(struct device *dev, struct device_attribute *attr, char *buf)
-{
-	return sprintf(buf, "%d\n", s2w_enabled);
-}
-
-static ssize_t slide2wake_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t size)
-{
-	int ret;
-	unsigned int value;
-	
-	ret = sscanf(buf, "%d\n", &value);
-	if (ret != 1)
-		return -EINVAL;
-	else
-		s2w_enabled = value ? true : false;
-
-	return size;
-}
-
-static DEVICE_ATTR(slide2wake, S_IRUGO | S_IWUSR | S_IWGRP,
-	slide2wake_show, slide2wake_store);
-#endif
 static DEVICE_ATTR(close_tsp_test, S_IRUGO, show_close_tsp_test, NULL);
 static DEVICE_ATTR(cmd, S_IWUSR | S_IWGRP, NULL, store_cmd);
 static DEVICE_ATTR(cmd_status, S_IRUGO, show_cmd_status, NULL);
@@ -3003,9 +2979,6 @@ static struct attribute *sec_touch_facotry_attributes[] = {
 #ifdef ESD_DEBUG
 		&dev_attr_intensity_logging_on.attr,
 		&dev_attr_intensity_logging_off.attr,
-#endif
-#ifdef CONFIG_TOUCHSCREEN_PREVENT_SLEEP
-		&dev_attr_slide2wake.attr,
 #endif
 		NULL,
 };
