@@ -26,6 +26,10 @@
 
 #include "q6voice.h"
 
+#ifdef CONFIG_TOUCHSCREEN_PREVENT_SLEEP
+#include <linux/input/prevent_sleep.h>
+#endif
+
 #define TIMEOUT_MS 3000
 
 #define CMD_STATUS_SUCCESS 0
@@ -41,6 +45,10 @@
 /* Due to memory map issue on Q6 separate memory has to be used */
 /* for VOIP & VOLTE  */
 #define TOTAL_VOICE_CAL_SIZE	(NUM_VOICE_CAL_BUFFERS * VOICE_CAL_BUFFER_SIZE)
+
+#ifdef CONFIG_TOUCHSCREEN_PREVENT_SLEEP
+bool in_phone_call = false;
+#endif
 
 static struct common_data common;
 
@@ -3642,6 +3650,9 @@ int voc_end_voice_call(uint16_t session_id)
 			voc_set_ext_ec_ref(AFE_PORT_INVALID, false);
 		v->voc_state = VOC_RELEASE;
 	}
+#ifdef CONFIG_TOUCHSCREEN_PREVENT_SLEEP
+	in_phone_call = false;
+#endif
 	mutex_unlock(&v->lock);
 	return ret;
 }
@@ -3758,6 +3769,10 @@ int voc_start_voice_call(uint16_t session_id)
 		ret = -EINVAL;
 		goto fail;
 	}
+#ifdef CONFIG_TOUCHSCREEN_PREVENT_SLEEP
+	in_phone_call = true;
+#endif
+
 fail:	mutex_unlock(&v->lock);
 	return ret;
 }

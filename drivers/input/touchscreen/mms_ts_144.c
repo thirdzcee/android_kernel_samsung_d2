@@ -52,6 +52,7 @@
 #ifdef CONFIG_TOUCHSCREEN_PREVENT_SLEEP
 #include <linux/input/sweep2wake.h>
 #include <linux/input/doubletap2wake.h>
+#include <linux/input/prevent_sleep.h>
 #endif
 
 #define MAX_FINGERS		10
@@ -611,6 +612,8 @@ out:
 		else
 			disable_irq(info->irq);
 	}
+	else if (isasleep && in_phone_call)
+		disable_irq(info->irq);	
 	if (s2w_switch < 1 || dt2w_switch < 1)
 		info->enabled = false;
 	isasleep = true;
