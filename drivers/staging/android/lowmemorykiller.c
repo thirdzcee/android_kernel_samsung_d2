@@ -116,28 +116,28 @@ static int lowmem_adj[6] = {
 };
 static int lowmem_adj_size = 6;
 static int lowmem_minfree[6] = {
-	3 * 512,	/* 6MB */
+	1 * 1024,	/* 6MB */
 	2 * 1024,	/* 8MB */
-	4 * 1024,	/* 16MB */
-	16 * 1024,	/* 64MB */
-	20 * 1024,	/* 80MB */
-	28 * 1024,	/* 112MB */
+	2 * 1024,	/* 16MB */
+	4 * 1024,	/* 64MB */
+	4 * 1024,	/* 80MB */
+	8 * 1024,	/* 112MB */
 };
 static int lowmem_minfree_screen_off[6] = {
 	3 * 512,	/* 6MB */
 	2 * 1024,	/* 8MB */
 	4 * 1024,	/* 16MB */
-	16 * 1024,	/* 64MB */
-	20 * 1024,	/* 80MB */
-	28 * 1024,	/* 112MB */
+	4 * 1024,	/* 64MB */
+	4 * 1024,	/* 80MB */
+	8 * 1024,	/* 112MB */
 };
 static int lowmem_minfree_screen_on[6] = {
-	3 * 512,	/* 6MB */
+	1 * 1024,	/* 6MB */
 	2 * 1024,	/* 8MB */
-	4 * 1024,	/* 16MB */
-	16 * 1024,	/* 64MB */
-	20 * 1024,	/* 80MB */
-	28 * 1024,	/* 112MB */
+	2 * 1024,	/* 16MB */
+	4 * 1024,	/* 64MB */
+	4 * 1024,	/* 80MB */
+	8 * 1024,	/* 112MB */
 };
 static int lowmem_minfree_size = 6;
 static int lmk_fast_run = 1;
