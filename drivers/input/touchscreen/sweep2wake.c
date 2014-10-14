@@ -52,7 +52,7 @@ MODULE_LICENSE("GPLv2");
 
 /* Tuneables */
 #define S2W_DEBUG		0
-#define S2W_DEFAULT		2
+#define S2W_DEFAULT		0
 #define S2W_PWRKEY_DUR          60
 
 #ifdef CONFIG_MACH_M2

@@ -581,7 +581,9 @@ static int mms_ts_enable(struct mms_ts_info *info, int wakeupcmd)
 out:
 	if (isasleep)
 	{
-		if (s2w_switch != 0 || dt2w_switch != 0)
+		if (isasleep && (s2w_switch == 1))
+			disable_irq_wake(info->irq);
+		else if (isasleep && (dt2w_switch != 0))
 			disable_irq_wake(info->irq);
 		else
 		{
@@ -607,21 +609,25 @@ static int mms_ts_disable(struct mms_ts_info *info, int sleepcmd)
 out:
 	if (!isasleep)
 	{
-		if (!isasleep && (s2w_switch != 0 || dt2w_switch != 0))
-			enable_irq_wake(info->irq);
+		if (s2w_switch == 1)
+			disable_irq_wake(info->irq);
+		else if (dt2w_switch != 0)
+			disable_irq_wake(info->irq);
 		else
-			disable_irq(info->irq);
+		{
+			if (!info->enabled)
+				enable_irq(info->irq);
+		}
 	}
-	else if (isasleep && in_phone_call)
-		disable_irq(info->irq);	
-	if (s2w_switch == 0 || dt2w_switch == 0)
+	if (isasleep && in_phone_call)
+		info->enabled = false;
+	else if (isasleep && (s2w_switch != 1))
 		info->enabled = false;
 	isasleep = true;
 	touch_is_pressed = 0;
 	mutex_unlock(&info->lock);
 	return 0;
 }
-
 #endif
 
 static irqreturn_t mms_ts_interrupt(int irq, void *dev_id)
