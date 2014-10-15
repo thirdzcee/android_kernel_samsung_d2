@@ -34,7 +34,7 @@
 #include "acpuclock.h"
 
 /* maxscroff */
-uint32_t maxscroff_freq = 1026000;
+uint32_t maxscroff_freq = 702000;
 uint32_t maxscroff = 1;
 
 struct cpufreq_suspend_t {
