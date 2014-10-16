@@ -11,6 +11,7 @@
  *
  */
 #include <linux/kernel.h>
+#include <linux/msm_thermal.h>
 #include <linux/platform_device.h>
 #include <linux/io.h>
 #include <linux/irq.h>
@@ -4065,6 +4066,24 @@ static struct platform_device msm_tsens_device = {
 	.id = -1,
 };
 
+static struct msm_thermal_data msm_thermal_pdata = {
+	.sensor_id = 0,
+	.poll_ms = 100,
+	.shutdown_temp = 90,
+
+	.allowed_max_high = 87,
+	.allowed_max_low = 82,
+	.allowed_max_freq = 384000,
+
+	.allowed_mid_high = 81,
+	.allowed_mid_low = 76,
+	.allowed_mid_freq = 810000,
+
+	.allowed_low_high = 75,
+	.allowed_low_low = 70,
+	.allowed_low_freq = 1350000,
+};
+
 /* Bluetooth */
 #ifdef CONFIG_BT_BCM4334
 static struct platform_device bcm4334_bluetooth_device = {
@@ -5244,6 +5263,7 @@ static void __init samsung_m2_init(void)
 
 	platform_device_register(&msm_gpio_device);
 	msm8960_tsens_init();
+	msm_thermal_init(&msm_thermal_pdata);
 	BUG_ON(msm_rpm_init(&msm8960_rpm_data));
 	BUG_ON(msm_rpmrs_levels_init(&msm_rpmrs_data));
 
