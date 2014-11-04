@@ -59,10 +59,10 @@ MODULE_LICENSE("GPLv2");
 /* D2LTE aka GALAXY SIII */
 #define S2W_Y_MAX               1280
 #define S2W_X_MAX               720
-#define S2W_Y_LIMIT             S2W_Y_MAX-130
-#define S2W_X_B1                150
+#define S2W_Y_LIMIT             S2W_Y_MAX-100
+#define S2W_X_B1                100
 #define S2W_X_B2                400
-#define S2W_X_FINAL             250
+#define S2W_X_FINAL             300
 #else
 /* defaults */
 #define S2W_Y_LIMIT             2350
