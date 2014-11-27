@@ -53,7 +53,7 @@ static DEFINE_SPINLOCK(zone_scan_lock);
  * @old_val.  Usually used to reinstate a previous value to prevent racing with
  * userspacing tuning the value in the interim.
  */
-void compare_swap_oom_score_adj(int old_val, int new_val)
+void compare_swap_oom_score_adj(short old_val, short new_val)
 {
 	struct sighand_struct *sighand = current->sighand;
 
@@ -72,7 +72,7 @@ void compare_swap_oom_score_adj(int old_val, int new_val)
  * synchronization and returns the old value.  Usually used to temporarily
  * set a value, save the old value in the caller, and then reinstate it later.
  */
-int test_set_oom_score_adj(int new_val)
+short test_set_oom_score_adj(short new_val)
 {
 	struct sighand_struct *sighand = current->sighand;
 	int old_val;
@@ -180,10 +180,11 @@ static bool oom_unkillable_task(struct task_struct *p,
  * predictable as possible.  The goal is to return the highest value for the
  * task consuming the most memory to avoid subsequent oom failures.
  */
-unsigned int oom_badness(struct task_struct *p, struct mem_cgroup *memcg,
-		      const nodemask_t *nodemask, unsigned long totalpages)
+unsigned long oom_badness(struct task_struct *p, struct mem_cgroup *memcg,
+			  const nodemask_t *nodemask, unsigned long totalpages)
 {
 	long points;
+	long adj;
 
 	if (oom_unkillable_task(p, memcg, nodemask))
 		return 0;
@@ -192,27 +193,18 @@ unsigned int oom_badness(struct task_struct *p, struct mem_cgroup *memcg,
 	if (!p)
 		return 0;
 
-	if (p->signal->oom_score_adj == OOM_SCORE_ADJ_MIN) {
+	adj = (long)p->signal->oom_score_adj;
+	if (adj == OOM_SCORE_ADJ_MIN) {
 		task_unlock(p);
 		return 0;
 	}
 
 	/*
-	 * The memory controller may have a limit of 0 bytes, so avoid a divide
-	 * by zero, if necessary.
-	 */
-	if (!totalpages)
-		totalpages = 1;
-
-	/*
 	 * The baseline for the badness score is the proportion of RAM that each
 	 * task's rss, pagetable and swap space use.
 	 */
-	points = get_mm_rss(p->mm) + p->mm->nr_ptes;
-	points += get_mm_counter(p->mm, MM_SWAPENTS);
-
-	points *= 1000;
-	points /= totalpages;
+	points = get_mm_rss(p->mm) + p->mm->nr_ptes +
+		 get_mm_counter(p->mm, MM_SWAPENTS);
 	task_unlock(p);
 
 	/*
@@ -220,23 +212,17 @@ unsigned int oom_badness(struct task_struct *p, struct mem_cgroup *memcg,
 	 * implementation used by LSMs.
 	 */
 	if (has_capability_noaudit(p, CAP_SYS_ADMIN))
-		points -= 30;
+		adj -= 30;
+
+	/* Normalize to oom_score_adj units */
+	adj *= totalpages / 1000;
+	points += adj;
 
 	/*
-	 * /proc/pid/oom_score_adj ranges from -1000 to +1000 such that it may
-	 * either completely disable oom killing or always prefer a certain
-	 * task.
+	 * Never return 0 for an eligible task regardless of the root bonus and
+	 * oom_score_adj (oom_score_adj can't be OOM_SCORE_ADJ_MIN here).
 	 */
-	points += p->signal->oom_score_adj;
-
-	/*
-	 * Never return 0 for an eligible task that may be killed since it's
-	 * possible that no single user task uses more than 0.1% of memory and
-	 * no single admin tasks uses more than 3.0%.
-	 */
-	if (points <= 0)
-		return 1;
-	return (points < 1000) ? points : 1000;
+	return points > 0 ? points : 1;
 }
 
 /*
@@ -314,7 +300,7 @@ static struct task_struct *select_bad_process(unsigned int *ppoints,
 {
 	struct task_struct *g, *p;
 	struct task_struct *chosen = NULL;
-	*ppoints = 0;
+	unsigned long chosen_points = 0;
 
 	do_each_thread(g, p) {
 		unsigned int points;
@@ -354,7 +340,7 @@ static struct task_struct *select_bad_process(unsigned int *ppoints,
 			 */
 			if (p == current) {
 				chosen = p;
-				*ppoints = 1000;
+				chosen_points = ULONG_MAX;
 			} else if (!force_kill) {
 				/*
 				 * If this task is not being ptraced on exit,
@@ -367,12 +353,13 @@ static struct task_struct *select_bad_process(unsigned int *ppoints,
 		}
 
 		points = oom_badness(p, memcg, nodemask, totalpages);
-		if (points > *ppoints) {
+		if (points > chosen_points) {
 			chosen = p;
-			*ppoints = points;
+			chosen_points = points;
 		}
 	} while_each_thread(g, p);
 
+	*ppoints = chosen_points * 1000 / totalpages;
 	return chosen;
 }
 
@@ -409,7 +396,7 @@ static void dump_tasks(const struct mem_cgroup *memcg, const nodemask_t *nodemas
 			continue;
 		}
 
-		pr_info("[%5d] %5d %5d %8lu %8lu %3u     %3d         %5d %s\n",
+		pr_info("[%5d] %5d %5d %8lu %8lu %3u     %3d         %5hd %s\n",
 			task->pid, task_uid(task), task->tgid,
 			task->mm->total_vm, get_mm_rss(task->mm),
 			task_cpu(task), task->signal->oom_adj,
@@ -423,7 +410,7 @@ static void dump_header(struct task_struct *p, gfp_t gfp_mask, int order,
 {
 	task_lock(current);
 	pr_warning("%s invoked oom-killer: gfp_mask=0x%x, order=%d, "
-		"oom_adj=%d, oom_score_adj=%d\n",
+		"oom_adj=%hd, oom_score_adj=%hd\n",
 		current->comm, gfp_mask, order, current->signal->oom_adj,
 		current->signal->oom_score_adj);
 	cpuset_print_task_mems_allowed(current);
@@ -572,7 +559,7 @@ void mem_cgroup_out_of_memory(struct mem_cgroup *memcg, gfp_t gfp_mask,
 	}
 
 	check_panic_on_oom(CONSTRAINT_MEMCG, gfp_mask, order, NULL);
-	limit = mem_cgroup_get_limit(memcg) >> PAGE_SHIFT;
+	limit = mem_cgroup_get_limit(memcg) >> PAGE_SHIFT ? : 1;
 	read_lock(&tasklist_lock);
 	p = select_bad_process(&points, limit, memcg, NULL, false);
 	if (p && PTR_ERR(p) != -1UL)
@@ -703,7 +690,7 @@ void out_of_memory(struct zonelist *zonelist, gfp_t gfp_mask,
 	struct task_struct *p;
 	unsigned long totalpages;
 	unsigned long freed = 0;
-	unsigned int points;
+	unsigned int points = 0;
 	enum oom_constraint constraint = CONSTRAINT_NONE;
 	int killed = 0;
 
@@ -732,9 +719,9 @@ void out_of_memory(struct zonelist *zonelist, gfp_t gfp_mask,
 	check_panic_on_oom(constraint, gfp_mask, order, mpol_mask);
 
 	read_lock(&tasklist_lock);
-	if (sysctl_oom_kill_allocating_task &&
+	if (sysctl_oom_kill_allocating_task && current->mm &&
 	    !oom_unkillable_task(current, NULL, nodemask) &&
-	    current->mm) {
+	    current->signal->oom_score_adj != OOM_SCORE_ADJ_MIN) {
 		oom_kill_process(current, gfp_mask, order, 0, totalpages, NULL,
 				 nodemask,
 				 "Out of memory (oom_kill_allocating_task)");
@@ -758,11 +745,11 @@ out:
 	read_unlock(&tasklist_lock);
 
 	/*
-	 * Give "p" a good chance of killing itself before we
-	 * retry to allocate memory unless "p" is current
+	 * Give the killed threads a good chance of exiting before trying to
+	 * allocate memory again.
 	 */
-	if (killed && !test_thread_flag(TIF_MEMDIE))
-		schedule_timeout_uninterruptible(1);
+	if (killed)
+		schedule_timeout_killable(1);
 }
 
 /*
@@ -777,6 +764,5 @@ void pagefault_out_of_memory(void)
 		out_of_memory(NULL, 0, 0, NULL, false);
 		clear_system_oom();
 	}
-	if (!test_thread_flag(TIF_MEMDIE))
-		schedule_timeout_uninterruptible(1);
+	schedule_timeout_killable(1);
 }
