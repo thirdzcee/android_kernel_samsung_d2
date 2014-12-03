@@ -286,4 +286,10 @@ config ASYNC_FSYNC
 	bool
 	default y
 
+config FSYNC_CONTROL
+	bool "file sync control switch"
+	default y
+	help
+	  a simple switch to enable or disable file sync
+
 endmenu
