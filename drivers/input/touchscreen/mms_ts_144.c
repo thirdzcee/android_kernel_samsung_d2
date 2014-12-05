@@ -49,6 +49,11 @@
 #include <asm/unaligned.h>
 #include "mms_ts_fw.h"
 
+#ifdef CONFIG_TOUCHSCREEN_PREVENT_SLEEP
+#include <linux/input/sweep2wake.h>
+#include <linux/input/doubletap2wake.h>
+#endif
+
 #define MAX_FINGERS		10
 #define MAX_WIDTH		30
 #define MAX_PRESSURE		4095
@@ -558,6 +563,63 @@ static void melfas_ta_cb(struct tsp_callbacks *cb, bool ta_status)
 		}
 	}
 }
+
+#ifdef CONFIG_TOUCHSCREEN_PREVENT_SLEEP
+static bool isasleep = false;
+
+static int mms_ts_enable(struct mms_ts_info *info, int wakeupcmd)
+{
+	mutex_lock(&info->lock);
+	if (info->enabled)
+		goto out;
+	/* wake up the touch controller. */
+	if (wakeupcmd == 1) {
+		i2c_smbus_write_byte_data(info->client, 0, 0);
+		usleep_range(3000, 5000);
+	}
+out:
+	if (isasleep)
+	{
+		if ((s2w_switch > 0) || (dt2w_switch > 0))
+			disable_irq_wake(info->irq);
+		else
+		{
+			if (!info->enabled)
+				enable_irq(info->irq);
+		}
+	}
+	info->enabled = true;
+	isasleep = false;
+	mutex_unlock(&info->lock);
+	return 0;
+}
+
+static int mms_ts_disable(struct mms_ts_info *info, int sleepcmd)
+{
+	mutex_lock(&info->lock);
+	if (!info->enabled)
+		goto out;
+	if (sleepcmd == 1) {
+		i2c_smbus_write_byte_data(info->client, MMS_MODE_CONTROL, 0);
+		usleep_range(10000, 12000);
+	}
+out:
+	if (!isasleep)
+	{
+		if (!isasleep && ((s2w_switch > 0) || (dt2w_switch > 0)))
+			enable_irq_wake(info->irq);
+		else
+			disable_irq(info->irq);
+	}
+	if ((s2w_switch < 1) || (dt2w_switch < 1))
+		info->enabled = false;
+	isasleep = true;
+	touch_is_pressed = 0;
+	mutex_unlock(&info->lock);
+	return 0;
+}
+
+#endif
 
 static irqreturn_t mms_ts_interrupt(int irq, void *dev_id)
 {
@@ -1762,7 +1824,7 @@ static int get_hw_version(struct mms_ts_info *info)
 
 	return ret;
 }
-
+#ifndef CONFIG_TOUCHSCREEN_PREVENT_SLEEP
 static int mms_ts_enable(struct mms_ts_info *info, int wakeupcmd)
 {
 	mutex_lock(&info->lock);
@@ -1796,7 +1858,7 @@ out:
 	mutex_unlock(&info->lock);
 	return 0;
 }
-
+#endif
 static int mms_ts_finish_config(struct mms_ts_info *info)
 {
 	struct i2c_client *client = info->client;
