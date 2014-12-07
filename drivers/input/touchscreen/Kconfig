@@ -1086,4 +1086,13 @@ config TOUCHSCREEN_PREVENT_SLEEP
         help
           This disables the sleep function of modified touchscreen drivers.
 
+config TOUCHSCREEN_TAP2UNLOCK
+	tristate "Tap to unlock for touchscreens"
+	select TOUCHSCREEN_PREVENT_SLEEP
+	default y
+
+config TOUCHSCREEN_POWERSUSPEND
+	tristate "powersuspend for dtw and s2w"
+	default y
+
 endif
