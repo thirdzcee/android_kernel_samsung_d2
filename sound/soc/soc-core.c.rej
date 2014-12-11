@@ -1,0 +1,11 @@
+--- sound/soc/soc-core.c
++++ sound/soc/soc-core.c
+@@ -2799,7 +2799,7 @@
+ 	unsigned int val;
+ 	void *data;
+ 
+-	if (!codec->using_regmap)
++	if (!codec->using_regmap || !params->num_regs)
+ 		return -EINVAL;
+ 
+ 	data = ucontrol->value.bytes.data;
